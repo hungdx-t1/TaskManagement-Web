@@ -1,0 +1,50 @@
+.header-wrapper {
+  width: 100%;
+  height: 60px;
+  display: flex;
+  justify-content: space-between;
+  border-bottom: 1px solid #d1d5db;
+  box-shadow: rgba(99, 99, 99, 0.2) 0px 2px 8px 0px;
+}
+
+.header-user {
+  display: flex;
+  align-items: center;
+}
+
+.header-user__avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  overflow: hidden;
+}
+
+.header-user__avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.tabs-list {
+  padding: 10px 0;
+  list-style: none;
+  white-space: nowrap;
+  max-width: 100%;
+  overflow-x: auto;
+}
+
+.nav-item {
+  display: inline-block;
+}
+
+.nav-link {
+  padding: 8px 16px;
+}
+.nav-link:hover{
+  color:red;
+
+}
+.form-signin {
+  max-width: 330px;
+  padding: 1rem;
+}
