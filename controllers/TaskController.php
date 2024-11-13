@@ -14,10 +14,12 @@ class TaskController{
 
       $user_id = $_SESSION['user_id'] ?? null;
       
-      $title = $_POST['title'];
-      $description = $_POST['description'];
-      $priority = $_POST['priority'];
-      $due_date = $_POST['due_date'];
+      $title = $_POST['title']; // tiêu đề
+      $description = $_POST['description']; // mô tả
+      $category = '1'; // danh mục ??
+      $priority = $_POST['priority']; // mức độ ưu tiên
+      $due_date = $_POST['due_date']; // ngày đáo hạn
+      $attachments = null;
 
       $query = "INSERT INTO tasks (user_id, title, description, priority, due_date) VALUES (:user_id, :title, :description, :priority, :due_date)";
 
