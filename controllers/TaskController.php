@@ -77,6 +77,7 @@ class TaskController{
           echo "<script>alert('Lỗi: ". $e->getMessage(). "'); history.back();</script>";
       }
     }
+  }
 
   public function updateTask($task_id, $title, $description, $priority, $due_date) {
     $query = "UPDATE tasks 
