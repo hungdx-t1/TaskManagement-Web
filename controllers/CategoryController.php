@@ -25,6 +25,10 @@ class CategoryController {
                 echo '<script>alert("Thêm danh mục không thành công do lỗi!");</script>';
                 echo '<script>history.back();</script>';
                 exit();
+            } else if ($userId == null) {
+                echo '<script>alert("Thêm danh mục thành công, nhưng không thể xác thực người dùng!");</script>';
+                echo '<script>history.back();</script>';
+                exit();
             }
             echo '<script>
                     alert("Thêm danh mục thành công!");
