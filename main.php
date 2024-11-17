@@ -7,6 +7,28 @@
   <title>Document</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
   <link rel="stylesheet" href="./index.css" />
+  <style>
+  .card {
+  width: 100%;
+  height: 400px; /* Chiều cao mặc định của card */
+  overflow: hidden;
+  margin-bottom: 20px; /* Thêm khoảng cách giữa các thẻ */
+}
+
+.card-img-top {
+  width: 100%;
+  height: 280px; /* Chiều cao cố định cho ảnh */
+}
+
+/* Tùy chọn: Áp dụng chiều cao lớn hơn chỉ trên các màn hình lớn hơn 992px */
+@media (min-width: 992px) { /* Áp dụng cho màn hình lớn hơn 992px */
+  .card {
+    height: calc(400px + 2cm); /* Tăng chiều cao thẻ thêm 2cm */
+  }
+}
+
+</style>
+
 </head>
 
 <body>
@@ -121,274 +143,239 @@
               <div class="modal-header">
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
               </div>
-              <div class="modal-body">
+              <!-- Form thêm công việc -->
+      <form action="add_task.php" method="POST" enctype="multipart/form-data">
+        <div class="modal-body">
                 <div class="mb-3 form-floating">
-                  <input type="text" class="form-control" id="title" placeholder="" required />
+                  <input type="text" class="form-control" name="title" placeholder="" required />
                   <label for="title">Tiêu đề</label>
                 </div>
 
                 <div class="mb-3 form-floating">
-                  <textarea class="form-control" placeholder="" id="description" style="height: 100px"></textarea>
+                  <textarea class="form-control" placeholder="" name="description" style="height: 100px"></textarea>
                   <label for="description">Mô tả</label>
                 </div>
 
                 <div class="mb-3 form-floating">
-                  <select class="form-select" id="category">
-                    <option value="1">Công việc cá nhân</option>
-                    <option value="2">Công việc gia đình</option>
-                    <option value="3">Dự án dài hạn</option>
-                    <option value="4">Học tập</option>
-                    <option value="5">Sức khỏe</option>
+                  <select class="form-select" name="category">
+                    <?php
+                      // Kết nối tới cơ sở dữ liệu (đảm bảo thay đổi thông tin kết nối theo đúng của bạn)
+                      $servername = "localhost";
+                      $username = "root";
+                      $password = "";
+                      $dbname = "task_management"; // Thay thế bằng tên cơ sở dữ liệu của bạn
+
+                      // Tạo kết nối
+                      $conn = new mysqli($servername, $username, $password, $dbname);
+
+                      // Kiểm tra kết nối
+                      if ($conn->connect_error) {
+                          die("Kết nối thất bại: " . $conn->connect_error);
+                      }
+
+                      $sql = "SELECT DISTINCT category_name FROM categories";
+
+                      $result = $conn->query($sql);
+
+                      // Kiểm tra nếu có kết quả và hiển thị chúng trong dropdown
+                      if ($result->num_rows > 0) {
+                          // Lặp qua từng dòng kết quả và thêm vào các option
+                          while($row = $result->fetch_assoc()) {
+                              echo '<option value="' . htmlspecialchars($row['category_name']) . '">' . htmlspecialchars($row['category_name']) . '</option>';
+                          }
+                      }
+
+
+                      // Đóng kết nối
+                      $conn->close();
+                      ?>
                   </select>
                   <label for="category">Chọn nhóm công việc</label>
                 </div>
 
                 <div class="mb-3 form-floating">
-                  <select class="form-select" id="priority">
+                  <select class="form-select" name="priority">
                     <option value="low">Thấp</option>
                     <option value="medium" selected>Trung bình</option>
                     <option value="high">Cao</option>
+
+
                   </select>
                   <label for="priority">Chọn mức độ ưu tiên</label>
                 </div>
 
                 <div class="mb-3">
                   <label for="dueDate" class="form-label">Ngày hết hạn</label>
-                  <input type="date" class="form-control" id="dueDate" />
+                  <input type="date" class="form-control" name="dueDate" />
                 </div>
 
                 <div class="mb-3">
                   <label for="attachment" class="form-label">File đính kèm (Nếu có)</label>
-                  <input type="file" class="form-control" id="attachment" />
+                  <input type="file" class="form-control" name="attachment" />
                 </div>
-              </div>
+              </div>  
               <div class="modal-footer">
                 <button type="button" class="btn btn-light" data-bs-dismiss="modal">Hủy</button>
-                <button type="button" class="btn btn-dark">Lưu</button>
+                <button type="submit" class="btn btn-dark">Lưu</button>
               </div>
+</form>
             </div>
           </div>
         </div>
       </div>
     </div>
+    <?php 
+// Kết nối cơ sở dữ liệu
+$servername = "localhost";
+$username = "root";
+$password = "";
+$dbname = "task_management";
 
-    <div class="mb-3 tab-header">
-      <ul class="nav-pills tabs-list" id="myTab" role="tablist">
-        <li class="nav-item" role="presentation">
-          <a class="active nav-link" data-bs-toggle="tab" href="#tab-1" role="tab" aria-controls="tab-1"
-            aria-selected="true">
-            Công việc cá nhân
-          </a>
-        </li>
-        <li class="nav-item" role="presentation">
-          <a class="nav-link" data-bs-toggle="tab" href="#tab-2" role="tab" aria-controls="tab-2" aria-selected="false">
-            Công việc gia đình </a>
-        </li>
-        <li class="nav-item" role="presentation">
-          <a class="nav-link" data-bs-toggle="tab" href="#tab-3" role="tab" aria-controls="tab-3" aria-selected="false">
-            Dự án dài hạn </a>
-        </li>
-        <li class="nav-item" role="presentation">
-          <a class="nav-link" data-bs-toggle="tab" href="#tab-4" role="tab" aria-controls="tab-4" aria-selected="false">
-            Học tập </a>
-        </li>
-        <li class="nav-item" role="presentation">
-          <a class="nav-link" data-bs-toggle="tab" href="#tab-5" role="tab" aria-controls="tab-5" aria-selected="false">
-            Sức khỏe </a>
-        </li>
-      </ul>
-    </div>
+// Tạo kết nối
+$conn = new mysqli($servername, $username, $password, $dbname);
 
-    <div class="pb-3 tab-content">
-      <div class="active fade show tab-pane" id="tab-1" role="tabpanel">
-        <div class="row">
-          <div class="col-12 col-md-3">
-            <div class="card">
-              <img
-                src="https://ik.imagekit.io/freeflo/production/c9cb104e-947f-4e1d-b92f-0e725f938853.png?tr=w-1200,q-75&alt=media&pr-true"
-                class="card-img-top" alt="..." />
-              <div class="card-body">
-                <h5 class="card-title">Card title</h5>
-                <p class="card-text">Some quick example text to build on the card title and make up the bulk of the
-                  card's content.</p>
-                <button class="text-white btn btn-warning" type="button" data-bs-toggle="modal"
-                  data-bs-target="#taskModal">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
-                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-                    class="lucide lucide-square-pen">
-                    <path d="M12 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
-                    <path
-                      d="M18.375 2.625a1 1 0 0 1 3 3l-9.013 9.014a2 2 0 0 1-.853.505l-2.873.84a.5.5 0 0 1-.62-.62l.84-2.873a2 2 0 0 1 .506-.852z" />
-                  </svg>
-                </button>
-                <button class="btn btn-danger">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
-                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-                    class="lucide-trash-2 lucide">
-                    <path d="M3 6h18" />
-                    <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6" />
-                    <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2" />
-                    <line x1="10" x2="10" y1="11" y2="17" />
-                    <line x1="14" x2="14" y1="11" y2="17" />
-                  </svg>
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
+// Kiểm tra kết nối
+if ($conn->connect_error) {
+    die("Kết nối thất bại: " . $conn->connect_error);
+}
+
+// Query categories excluding predefined ones
+$query = "SELECT distinct category_name FROM categories";
+
+// Sử dụng prepared statement để tránh SQL Injection
+$stmt = $conn->prepare($query);
+
+if ($stmt === false) {
+    die("Lỗi trong việc chuẩn bị câu truy vấn: " . $conn->error);
+}
+
+$stmt->execute();
+$result = $stmt->get_result();
+$categories = $result->fetch_all(MYSQLI_ASSOC);
+
+$stmt->close();
+$conn->close();
+?>
+
+<div class="mb-3 tab-header">
+    <ul class="nav-pills tabs-list" id="myTab" role="tablist">
+        <!-- Hiển thị các danh mục lấy từ cơ sở dữ liệu -->
+        <?php
+        $i = 6;
+        foreach ($categories as $category): ?>
+            <li class="nav-item" role="presentation">
+                <a class="nav-link" data-bs-toggle="tab" href="#tab-<?php echo $i; ?>" role="tab" aria-controls="tab-<?php echo $i; ?>" aria-selected="false">
+                    <?php echo htmlspecialchars($category['category_name']); ?>
+                </a>
+            </li>
+        <?php
+        $i++;
+        endforeach;
+        ?>
+    </ul>
+</div>
+
+<div class="tab-content">
+    <?php
+    // Reconnect to fetch tasks dynamically for each category tab
+    $conn = new mysqli($servername, $username, $password, $dbname);
+
+    if ($conn->connect_error) {
+        die("Kết nối thất bại: " . $conn->connect_error);
+    }
+
+    // Fetch tasks for each category dynamically
+    foreach ($categories as $index => $category) {
+        // Get tasks for current category
+        $category_name = $category['category_name'];
+        $sql = "SELECT tasks.title, tasks.description, tasks.image, tasks.due_date
+                FROM tasks
+                JOIN categories ON tasks.category = categories.category_name
+                WHERE categories.category_name = ?";
+
+        // Use prepared statement to avoid SQL injection
+        $stmt = $conn->prepare($sql);
+        $stmt->bind_param("s", $category_name);
+        $stmt->execute();
+        $task_result = $stmt->get_result();
+
+        echo '<div class="tab-pane fade" id="tab-' . ($index + 6) . '" role="tabpanel">';
+        echo '<div class="row">';
+
+        // Hiển thị công việc cho danh mục này
+        while ($row = $task_result->fetch_assoc()) {
+            // Kiểm tra nếu không có hình ảnh thì sử dụng hình mặc định
+            $imageSrc = !empty($row['image']) ? 'data:image/jpeg;base64,' . base64_encode($row['image']) : 'https://cdn-media.sforum.vn/storage/app/media/THANHAN/avatar-trang-99.jpg';
+            
+            // Giới hạn độ dài mô tả
+            $maxLength = 0;
+            $description = $row['description'];
+            $shortDescription = (strlen($description) > $maxLength) ? substr($description, 0, $maxLength) . '...' : $description;
+            $fullDescription = $description; // Mô tả đầy đ
+
+            echo '<div class="col-12 col-md-3">
+                    <div class="card">
+                        <img src="' . $imageSrc . '" class="card-img-top" alt="Card image" />
+                        <div class="card-body">
+                            <h5 class="card-title">' . htmlspecialchars($row['title']) . '</h5>
+                            <p class="card-text">' . htmlspecialchars($shortDescription) . '</p>
+                            <p class="card-text" style="color: green;">' . htmlspecialchars($row['due_date']) . '</p>
+                            <button class="text-white btn btn-warning" type="button" data-bs-toggle="modal" data-bs-target="#taskModal">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-square-pen">
+                                    <path d="M12 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
+                                    <path d="M18.375 2.625a1 1 0 0 1 3 3l-9.013 9.014a2 2 0 0 1-.853.505l-2.873.84a.5.5 0 0 1-.62-.62l.84-2.873a2 2 0 0 1 .506-.852z" />
+                                </svg>
+                            </button>
+
+                            <button class="btn btn-danger">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-trash-2 lucide">
+                                    <path d="M3 6h18" />
+                                    <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6" />
+                                    <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2" />
+                                    <line x1="10" x2="10" y1="11" y2="17" />
+                                    <line x1="14" x2="14" y1="11" y2="17" />
+                                </svg>
+                            </button>
+
+                            <!-- Third button (Example: Edit button) -->
+                            <button class="btn btn-info" type="button" data-bs-toggle="modal" data-bs-target="#taskModal" data-description="' . htmlspecialchars($description) . '">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-eye">
+                                    <path d="M2.5 12s3.5-7 9.5-7 9.5 7 9.5 7-3.5 7-9.5 7-9.5-7-9.5-7z" />
+                                    <circle cx="12" cy="12" r="3" />
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                </div>';
+        }
+
+        echo '</div>';
+        echo '</div>';
+    }
+
+    // Close connection
+    $conn->close();
+    ?>
+</div>
+
+<!-- Modal để xem mô tả đầy đủ -->
+<div class="modal fade" id="taskModal" tabindex="-1" aria-labelledby="taskModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="taskModalLabel">Mô tả công việc</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
-      <div class="fade show tab-pane" id="tab-2" role="tabpanel">
-        <div class="row">
-          <div class="col-12 col-md-3">
-            <div class="card">
-              <img
-                src="https://ik.imagekit.io/freeflo/production/6b91c700-92c4-4601-8e96-37d84ac3c28c.png?tr=w-1200,q-75&alt=media&pr-true"
-                class="card-img-top" alt="..." />
-              <div class="card-body">
-                <h5 class="card-title">Card title</h5>
-                <p class="card-text">Some quick example text to build on the card title and make up the bulk of the
-                  card's content.</p>
-                <button class="text-white btn btn-warning" type="button" data-bs-toggle="modal"
-                  data-bs-target="#taskModal">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
-                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-                    class="lucide lucide-square-pen">
-                    <path d="M12 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
-                    <path
-                      d="M18.375 2.625a1 1 0 0 1 3 3l-9.013 9.014a2 2 0 0 1-.853.505l-2.873.84a.5.5 0 0 1-.62-.62l.84-2.873a2 2 0 0 1 .506-.852z" />
-                  </svg>
-                </button>
-                <button class="btn btn-danger">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
-                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-                    class="lucide-trash-2 lucide">
-                    <path d="M3 6h18" />
-                    <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6" />
-                    <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2" />
-                    <line x1="10" x2="10" y1="11" y2="17" />
-                    <line x1="14" x2="14" y1="11" y2="17" />
-                  </svg>
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
+      <div class="modal-body">
+        <p id="taskDescription"></p>
       </div>
-
-      <div class="fade show tab-pane" id="tab-3" role="tabpanel">
-        <div class="row">
-          <div class="col-12 col-md-3">
-            <div class="card">
-              <img
-                src="https://ik.imagekit.io/freeflo/production/83a95b7e-4874-4f09-b638-54a9c02541d2.png?tr=w-1200,q-75&alt=media&pr-true"
-                class="card-img-top" alt="..." />
-              <div class="card-body">
-                <h5 class="card-title">Card title</h5>
-                <p class="card-text">Some quick example text to build on the card title and make up the bulk of the
-                  card's content.</p>
-                <button class="text-white btn btn-warning" type="button" data-bs-toggle="modal"
-                  data-bs-target="#taskModal">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
-                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-                    class="lucide lucide-square-pen">
-                    <path d="M12 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
-                    <path
-                      d="M18.375 2.625a1 1 0 0 1 3 3l-9.013 9.014a2 2 0 0 1-.853.505l-2.873.84a.5.5 0 0 1-.62-.62l.84-2.873a2 2 0 0 1 .506-.852z" />
-                  </svg>
-                </button>
-                <button class="btn btn-danger">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
-                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-                    class="lucide-trash-2 lucide">
-                    <path d="M3 6h18" />
-                    <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6" />
-                    <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2" />
-                    <line x1="10" x2="10" y1="11" y2="17" />
-                    <line x1="14" x2="14" y1="11" y2="17" />
-                  </svg>
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div class="fade show tab-pane" id="tab-4" role="tabpanel">
-        <div class="row">
-          <div class="col-12 col-md-3">
-            <div class="card">
-              <img
-                src="https://ik.imagekit.io/freeflo/production/658a77e6-21e8-4f50-b2ce-22cf7f55ea4d.png?tr=w-1200,q-75&alt=media&pr-true"
-                class="card-img-top" alt="..." />
-              <div class="card-body">
-                <h5 class="card-title">Card title</h5>
-                <p class="card-text">Some quick example text to build on the card title and make up the bulk of the
-                  card's content.</p>
-                <button class="text-white btn btn-warning" type="button" data-bs-toggle="modal"
-                  data-bs-target="#taskModal">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
-                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-                    class="lucide lucide-square-pen">
-                    <path d="M12 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
-                    <path
-                      d="M18.375 2.625a1 1 0 0 1 3 3l-9.013 9.014a2 2 0 0 1-.853.505l-2.873.84a.5.5 0 0 1-.62-.62l.84-2.873a2 2 0 0 1 .506-.852z" />
-                  </svg>
-                </button>
-                <button class="btn btn-danger">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
-                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-                    class="lucide-trash-2 lucide">
-                    <path d="M3 6h18" />
-                    <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6" />
-                    <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2" />
-                    <line x1="10" x2="10" y1="11" y2="17" />
-                    <line x1="14" x2="14" y1="11" y2="17" />
-                  </svg>
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div class="fade show tab-pane" id="tab-5" role="tabpanel">
-        <div class="row">
-          <div class="col-12 col-md-3">
-            <div class="card">
-              <img
-                src="https://ik.imagekit.io/freeflo/production/22e52e2c-2983-447e-8cc4-21c6a9bd2ba5.png?tr=w-1200,q-75&alt=media&pr-true"
-                class="card-img-top" alt="..." />
-              <div class="card-body">
-                <h5 class="card-title">Card title</h5>
-                <p class="card-text">Some quick example text to build on the card title and make up the bulk of the
-                  card's content.</p>
-                <button class="text-white btn btn-warning" type="button" data-bs-toggle="modal"
-                  data-bs-target="#taskModal">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
-                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-                    class="lucide lucide-square-pen">
-                    <path d="M12 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
-                    <path
-                      d="M18.375 2.625a1 1 0 0 1 3 3l-9.013 9.014a2 2 0 0 1-.853.505l-2.873.84a.5.5 0 0 1-.62-.62l.84-2.873a2 2 0 0 1 .506-.852z" />
-                  </svg>
-                </button>
-                <button class="btn btn-danger">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
-                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-                    class="lucide-trash-2 lucide">
-                    <path d="M3 6h18" />
-                    <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6" />
-                    <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2" />
-                    <line x1="10" x2="10" y1="11" y2="17" />
-                    <line x1="14" x2="14" y1="11" y2="17" />
-                  </svg>
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
       </div>
     </div>
+  </div>
+</div>
+
     <img style="width:100%; border-radius: 12px;" src="./assets/image/maxresdefault.jpg">
   </main>
 
