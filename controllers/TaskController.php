@@ -40,7 +40,7 @@ class TaskController{
         </script>';
     }
     else {
-      echo '<script>alert("Thêm danh mục không thành công do lỗi!")</script>';
+      echo '<script>alert("Thêm công việc không thành công do lỗi!")</script>';
       echo '<script>history.back();</script>';
       exit();
     }
