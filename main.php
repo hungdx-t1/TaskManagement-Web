@@ -27,6 +27,19 @@
   }
 }
 
+main{
+  width: 100%;
+  min-height: 100vh;
+  background-image: url('./assets/image/maxresdefault.jpg');
+  background-position: center;
+  background-size: cover;
+  background-repeat: none;
+}
+
+.nav-item{
+  background-color: #71717a;
+  color: #fff;
+}
 </style>
 
 </head>
@@ -125,7 +138,7 @@
         <img style="width:50px" src="./assets/image/rattle-hand-drawn-baby-tool-svgrepo-com.svg">
       </div>
       <div>
-        <button class="gap-2 d-flex align-items-center btn btn-dark" type="button" data-bs-toggle="modal"
+        <button class="gap-2 d-flex align-items-center btn btn-dark" id="btn-add" type="button" data-bs-toggle="modal"
           data-bs-target="#taskModal">
           <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
             stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
@@ -146,18 +159,19 @@
               <!-- Form thêm công việc -->
       <form action="add_task.php" method="POST" enctype="multipart/form-data">
         <div class="modal-body">
+                <input type="hidden" id="taskIdInput" name="taskId">
                 <div class="mb-3 form-floating">
-                  <input type="text" class="form-control" name="title" placeholder="" required />
+                  <input type="text" id="titleInput" class="form-control" name="title" placeholder="" required />
                   <label for="title">Tiêu đề</label>
                 </div>
 
                 <div class="mb-3 form-floating">
-                  <textarea class="form-control" placeholder="" name="description" style="height: 100px"></textarea>
+                  <textarea class="form-control" id="descInput" placeholder="" name="description" style="height: 100px"></textarea>
                   <label for="description">Mô tả</label>
                 </div>
 
                 <div class="mb-3 form-floating">
-                  <select class="form-select" name="category">
+                  <select class="form-select" id="categorySelect" name="category">
                     <?php
                       // Kết nối tới cơ sở dữ liệu (đảm bảo thay đổi thông tin kết nối theo đúng của bạn)
                       $servername = "localhost";
@@ -194,7 +208,7 @@
                 </div>
 
                 <div class="mb-3 form-floating">
-                  <select class="form-select" name="priority">
+                  <select class="form-select" id="prioritySelect" name="priority">
                     <option value="low">Thấp</option>
                     <option value="medium" selected>Trung bình</option>
                     <option value="high">Cao</option>
@@ -206,7 +220,7 @@
 
                 <div class="mb-3">
                   <label for="dueDate" class="form-label">Ngày hết hạn</label>
-                  <input type="date" class="form-control" name="dueDate" />
+                  <input type="date" id="dueDateInput" class="form-control" name="dueDate" />
                 </div>
 
                 <div class="mb-3">
@@ -216,7 +230,7 @@
               </div>  
               <div class="modal-footer">
                 <button type="button" class="btn btn-light" data-bs-dismiss="modal">Hủy</button>
-                <button type="submit" class="btn btn-dark">Lưu</button>
+                <button type="submit" id="btn-submit" class="btn btn-dark">Thêm mới công việc</button>
               </div>
 </form>
             </div>
@@ -257,16 +271,19 @@ $stmt->close();
 $conn->close();
 ?>
 
-<div class="mb-3 tab-header">
+<div class="my-3 tab-header">
     <ul class="nav-pills tabs-list" id="myTab" role="tablist">
         <!-- Hiển thị các danh mục lấy từ cơ sở dữ liệu -->
         <?php
         $i = 6;
         foreach ($categories as $category): ?>
-            <li class="nav-item" role="presentation">
+            <li class="nav-item position-relative me-3" role="presentation">
                 <a class="nav-link" data-bs-toggle="tab" href="#tab-<?php echo $i; ?>" role="tab" aria-controls="tab-<?php echo $i; ?>" aria-selected="false">
                     <?php echo htmlspecialchars($category['category_name']); ?>
                 </a>
+                <div class="position-absolute top-0 start-100 translate-middle px-1 text-center bg-white rounded-circle">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="#000" stroke="#000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-x"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+                </div>
             </li>
         <?php
         $i++;
@@ -288,7 +305,7 @@ $conn->close();
     foreach ($categories as $index => $category) {
         // Get tasks for current category
         $category_name = $category['category_name'];
-        $sql = "SELECT tasks.title, tasks.description, tasks.image, tasks.due_date
+        $sql = "SELECT tasks.title, tasks.task_id, tasks.description, tasks.category, tasks.priority, tasks.image, tasks.due_date
                 FROM tasks
                 JOIN categories ON tasks.category = categories.category_name
                 WHERE categories.category_name = ?";
@@ -320,30 +337,35 @@ $conn->close();
                             <h5 class="card-title">' . htmlspecialchars($row['title']) . '</h5>
                             <p class="card-text">' . htmlspecialchars($shortDescription) . '</p>
                             <p class="card-text" style="color: green;">' . htmlspecialchars($row['due_date']) . '</p>
-                            <button class="text-white btn btn-warning" type="button" data-bs-toggle="modal" data-bs-target="#taskModal">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-square-pen">
-                                    <path d="M12 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
-                                    <path d="M18.375 2.625a1 1 0 0 1 3 3l-9.013 9.014a2 2 0 0 1-.853.505l-2.873.84a.5.5 0 0 1-.62-.62l.84-2.873a2 2 0 0 1 .506-.852z" />
-                                </svg>
-                            </button>
+                            <div class="d-flex gap-3">
+                              <button class="text-white btn btn-warning btnTaskInfo" type="button" data-bs-toggle="modal" data-bs-target="#taskModal" data-task="' . htmlspecialchars(json_encode($row), ENT_QUOTES, 'UTF-8') . '">
+                                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-square-pen">
+                                      <path d="M12 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
+                                      <path d="M18.375 2.625a1 1 0 0 1 3 3l-9.013 9.014a2 2 0 0 1-.853.505l-2.873.84a.5.5 0 0 1-.62-.62l.84-2.873a2 2 0 0 1 .506-.852z" />
+                                  </svg>
+                              </button>
 
-                            <button class="btn btn-danger">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-trash-2 lucide">
-                                    <path d="M3 6h18" />
-                                    <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6" />
-                                    <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2" />
-                                    <line x1="10" x2="10" y1="11" y2="17" />
-                                    <line x1="14" x2="14" y1="11" y2="17" />
-                                </svg>
-                            </button>
+                              <form action="delete_task.php" method="POST">
+                                <input type="hidden" name="id" value="'. $row['task_id'] .'">
+                                <button class="btn btn-danger">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-trash-2 lucide">
+                                        <path d="M3 6h18" />
+                                        <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6" />
+                                        <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2" />
+                                        <line x1="10" x2="10" y1="11" y2="17" />
+                                        <line x1="14" x2="14" y1="11" y2="17" />
+                                    </svg>
+                                </button>
+                              </form>
 
-                            <!-- Third button (Example: Edit button) -->
-                            <button class="btn btn-info" type="button" data-bs-toggle="modal" data-bs-target="#taskModal" data-description="' . htmlspecialchars($description) . '">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-eye">
-                                    <path d="M2.5 12s3.5-7 9.5-7 9.5 7 9.5 7-3.5 7-9.5 7-9.5-7-9.5-7z" />
-                                    <circle cx="12" cy="12" r="3" />
-                                </svg>
-                            </button>
+                              <!-- Third button (Example: Edit button) -->
+                              <button class="btn btn-info btnTaskDescription" type="button" data-bs-toggle="modal" data-bs-target="#taskDescriptionModal" data-description="' . htmlspecialchars($description) . '">
+                                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-eye">
+                                      <path d="M2.5 12s3.5-7 9.5-7 9.5 7 9.5 7-3.5 7-9.5 7-9.5-7-9.5-7z" />
+                                      <circle cx="12" cy="12" r="3" />
+                                  </svg>
+                              </button>
+                            </div>
                         </div>
                     </div>
                 </div>';
@@ -359,7 +381,7 @@ $conn->close();
 </div>
 
 <!-- Modal để xem mô tả đầy đủ -->
-<div class="modal fade" id="taskModal" tabindex="-1" aria-labelledby="taskModalLabel" aria-hidden="true">
+<div class="modal fade" id="taskDescriptionModal" tabindex="-1" aria-labelledby="taskModalLabel" aria-hidden="true">
   <div class="modal-dialog">
     <div class="modal-content">
       <div class="modal-header">
@@ -376,7 +398,7 @@ $conn->close();
   </div>
 </div>
 
-    <img style="width:100%; border-radius: 12px;" src="./assets/image/maxresdefault.jpg">
+    <!-- <img style="width:100%; border-radius: 12px;" src="./assets/image/maxresdefault.jpg"> -->
   </main>
 
   <div class="fade modal" id="categoryModal" tabindex="-1" aria-labelledby="categoryModal" aria-hidden="true">
@@ -451,6 +473,48 @@ $conn->close();
   </div>
   
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    const buttonInfo = document.querySelectorAll('.btnTaskInfo');
+    const taskModal = document.getElementById('taskModal');
+    const titleInput = document.getElementById('titleInput');
+    const descInput = document.getElementById('descInput');
+    const categorySelect = document.getElementById('categorySelect');
+    const prioritySelect = document.getElementById('prioritySelect');
+    const dueDateInput =document.getElementById('dueDateInput');
+    const taskIdInput = document.getElementById('taskIdInput');
+    const btnSubmit = document.getElementById('btn-submit');
+    const btnAdd = document.getElementById('btn-add');
+
+    const btnTaskDescription = document.querySelectorAll('.btnTaskDescription');
+    const taskDescription = document.getElementById('taskDescription');
+
+    buttonInfo.forEach(btn => {
+      btn.addEventListener("click", (event) => {
+          const task = event.currentTarget.getAttribute("data-task");
+          const taskObject = JSON.parse(task);
+          console.log(taskObject);
+          titleInput.value = taskObject.title;
+          dueDateInput.value = taskObject.due_date.split(" ")[0];
+          descInput.value = taskObject.description;
+          categorySelect.value = taskObject.category;
+          prioritySelect.value = taskObject.priority;
+          taskIdInput.value = taskObject.task_id;
+          btnSubmit.innerText = "Cập nhật công việc";
+      });
+    });
+
+    btnTaskDescription.forEach(btn => {
+      btn.addEventListener("click", (event) => {
+        const description = event.currentTarget.getAttribute("data-description");
+        taskDescription.innerText = description
+      });
+    });
+
+    btnAdd.addEventListener("click", () => {
+      btnSubmit.innerText = "Thêm mới công việc";
+    })
+    
+  </script>
 </body>
 
 </html>

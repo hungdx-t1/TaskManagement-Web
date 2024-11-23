@@ -6,6 +6,16 @@
     <title>Document</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
     <link rel="stylesheet" href="./index.css" />
+    <style>
+      body{
+        width: 100%;
+        min-height: 100vh;
+        background-image: url('./assets/image/a.jfif');
+        background-position: center;
+        background-size: cover;
+        background-repeat: none;
+      }
+    </style>
   </head>
   <body class="d-flex justify-content-center align-items-center vh-100">
     <main class="form-signin w-100">

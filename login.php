@@ -6,13 +6,23 @@
     <title>Document</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
     <link rel="stylesheet" href="./index.css" />
+    <style>
+      body{
+        width: 100%;
+        min-height: 100vh;
+        background-image: url('./assets/image/dh-quy-nhon-18473511.webp');
+        background-position: center;
+        background-size: cover;
+        background-repeat: none;
+      }
+    </style>
   </head>
   <body class="d-flex justify-content-center align-items-center vh-100">
     <main class="form-signin w-100">
      
       <form action="./login/post" method="post" autocomplete="off">
-      <img style="width:100%; border-radius: 12px;" src="./assets/image/dh-quy-nhon-18473511.webp">
-        <h1 class="mb-3 fw-bold text-dark h1 text-center">Đăng nhập</h1>
+      
+        <h1 class="mb-3 fw-bold text-white h1 text-center">Đăng nhập</h1>
         <div class="mb-3 form-floating">
           <input type="text" class="form-control" name="username" maxlength="20" id="username" placeholder="" required />
           <label for="username">Tên đăng nhập</label>

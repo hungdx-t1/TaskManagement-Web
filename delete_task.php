@@ -17,9 +17,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $taskId = $_POST['id'];
 
     // Chuẩn bị câu truy vấn để xóa công việc
-    $stmt = $conn->prepare("DELETE FROM tasks WHERE id = ?");
+    $stmt = $conn->prepare("DELETE FROM tasks WHERE task_id = ?");
     $stmt->bind_param("i", $taskId);
-
+ 
     // Thực thi và trả về kết quả
     if ($stmt->execute()) {
         echo "<script>
