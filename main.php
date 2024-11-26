@@ -359,7 +359,7 @@ $conn->close();
                               </form>
 
                               <!-- Third button (Example: Edit button) -->
-                              <button class="btn btn-info btnTaskDescription" type="button" data-bs-toggle="modal" data-bs-target="#taskDescriptionModal" data-description="' . htmlspecialchars($description) . '">
+                              <button class="btn btn-info btnTaskDescription" type="button" data-bs-toggle="modal" data-bs-target="#taskDescriptionModal" data-title="'. $row['title'] .'" data-date="' . $row['due_date'] . '" data-description="' . htmlspecialchars($description) . '">
                                   <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-eye">
                                       <path d="M2.5 12s3.5-7 9.5-7 9.5 7 9.5 7-3.5 7-9.5 7-9.5-7-9.5-7z" />
                                       <circle cx="12" cy="12" r="3" />
@@ -389,7 +389,18 @@ $conn->close();
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div class="modal-body">
-        <p id="taskDescription"></p>
+        <div class="mb-3">
+          Tên công việc:
+          <span id="taskTitle"></span>
+        </div>
+        <div class="mb-3">
+          Mô tả:
+          <div style="max-width: 100%; word-break: break-word;" id="taskDescription"></span>
+        </div>
+        <div class="mb-3">
+          Ngày hết han:
+          <span id="taskDueDate"></span>
+        </div>
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
@@ -487,6 +498,8 @@ $conn->close();
 
     const btnTaskDescription = document.querySelectorAll('.btnTaskDescription');
     const taskDescription = document.getElementById('taskDescription');
+    const taskTitle = document.getElementById('taskTitle');
+    const taskDueDate = document.getElementById('taskDueDate');
 
     buttonInfo.forEach(btn => {
       btn.addEventListener("click", (event) => {
@@ -506,7 +519,11 @@ $conn->close();
     btnTaskDescription.forEach(btn => {
       btn.addEventListener("click", (event) => {
         const description = event.currentTarget.getAttribute("data-description");
+        const title = event.currentTarget.getAttribute("data-title");
+        const dueDate = event.currentTarget.getAttribute("data-date");
         taskDescription.innerText = description
+        taskTitle.innerText = title
+        taskDueDate.innerText = dueDate
       });
     });
 
