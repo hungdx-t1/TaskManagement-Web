@@ -254,7 +254,7 @@ if ($conn->connect_error) {
 }
 
 // Query categories excluding predefined ones
-$query = "SELECT distinct category_name FROM categories";
+$query = "SELECT category_id, category_name FROM categories";
 
 // Sử dụng prepared statement để tránh SQL Injection
 $stmt = $conn->prepare($query);
@@ -281,9 +281,15 @@ $conn->close();
                 <a class="nav-link" data-bs-toggle="tab" href="#tab-<?php echo $i; ?>" role="tab" aria-controls="tab-<?php echo $i; ?>" aria-selected="false">
                     <?php echo htmlspecialchars($category['category_name']); ?>
                 </a>
-                <div class="position-absolute top-0 start-100 translate-middle px-1 text-center bg-white rounded-circle">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="#000" stroke="#000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-x"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
-                </div>
+                <!-- Nút xóa danh mục -->
+                <form action="delete_category.php" method="POST" class="position-absolute top-0 start-100 translate-middle">
+                <input type="hidden" name="category_id" value="<?php echo $category['category_id']; ?>">
+                    <button type="submit" class="btn btn-link p-0 text-danger" title="Xóa danh mục">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="#000" stroke="#000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-x">
+                            <path d="M18 6 6 18"/><path d="m6 6 12 12"/>
+                        </svg>
+                    </button>
+                </form> 
             </li>
         <?php
         $i++;
