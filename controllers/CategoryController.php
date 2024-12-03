@@ -30,6 +30,14 @@ class CategoryController {
                 echo '<script>history.back();</script>';
                 exit();
             }
+
+            $action = "Thêm danh mục: ".$categoryName;
+            $log_sql = "INSERT INTO activity_logs(user_id, action) VALUES (:user_id, :action)";  
+            $stmt = $this->conn->prepare($log_sql); 
+            $stmt->bindParam(':user_id', $userId);
+            $stmt->bindParam(':action', $action);
+            $stmt->execute();
+
             echo '<script>
                     alert("Thêm danh mục thành công!");
                     window.location.href = "main.php";

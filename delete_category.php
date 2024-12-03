@@ -1,4 +1,11 @@
 <?php
+session_start();
+
+if (!isset($_SESSION['user_id'])) {
+    header("Location: index.php");
+    exit();
+}
+
 // Kết nối cơ sở dữ liệu
 $servername = "localhost";
 $username = "root";
@@ -17,29 +24,59 @@ if ($conn->connect_error) {
 if (isset($_POST['category_id'])) {
     $category_id = $_POST['category_id'];
 
-    // Câu lệnh SQL xóa danh mục
-    $sql = "DELETE FROM categories WHERE category_id = ?";
+    // Truy vấn để lấy tên danh mục trước khi xóa
+    $get_category_name_sql = "SELECT category_name FROM categories WHERE category_id = ?";
+    $get_stmt = $conn->prepare($get_category_name_sql);
 
-    // Sử dụng prepared statement để tránh SQL injection
-    $stmt = $conn->prepare($sql);
-
-    if ($stmt === false) {
+    if ($get_stmt === false) {
         die("Lỗi trong việc chuẩn bị câu truy vấn: " . $conn->error);
     }
 
-    // Gắn giá trị vào câu lệnh SQL
-    $stmt->bind_param("i", $category_id);
+    $get_stmt->bind_param("i", $category_id);
+    $get_stmt->execute();
+    $get_stmt->bind_result($category_name);
 
-    // Thực thi câu lệnh
-    if ($stmt->execute()) {
-        echo "<script>alert('Xóa danh mục thành công!'); window.location.href='main.php';</script>";
+    if ($get_stmt->fetch()) {
+        // Nếu tìm thấy tên danh mục, tiến hành xóa
+        $get_stmt->close();
+
+        // Câu lệnh SQL xóa danh mục
+        $delete_sql = "DELETE FROM categories WHERE category_id = ?";
+        $stmt = $conn->prepare($delete_sql);
+
+        if ($stmt === false) {
+            die("Lỗi trong việc chuẩn bị câu truy vấn: " . $conn->error);
+        }
+
+        $stmt->bind_param("i", $category_id);
+
+        if ($stmt->execute()) {
+            // Lưu log với tên danh mục
+            $userId = $_SESSION['user_id'];
+            $action = "Xóa danh mục: " . $category_name;
+
+            $log_sql = "INSERT INTO activity_logs(user_id, action) VALUES (?, ?)";
+            $log_stmt = $conn->prepare($log_sql);
+
+            if ($log_stmt === false) {
+                die("Lỗi trong việc chuẩn bị câu truy vấn log: " . $conn->error);
+            }
+
+            $log_stmt->bind_param("is", $userId, $action);
+            $log_stmt->execute();
+
+            echo "<script>alert('Xóa danh mục thành công!'); window.location.href='main.php';</script>";
+        } else {
+            echo "Lỗi khi xóa danh mục: " . $stmt->error;
+        }
+
+        $stmt->close();
     } else {
-        echo "Lỗi khi xóa danh mục: " . $stmt->error;
+        echo "Không tìm thấy danh mục với ID: " . $category_id;
     }
 
-    $stmt->close();
 } else {
-    echo "Không có category_id để xóa.";
+    echo "Không có danh mục để xóa.";
 }
 
 // Đóng kết nối

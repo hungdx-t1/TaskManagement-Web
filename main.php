@@ -282,9 +282,9 @@ $conn->close();
                     <?php echo htmlspecialchars($category['category_name']); ?>
                 </a>
                 <!-- Nút xóa danh mục -->
-                <form action="delete_category.php" method="POST" class="position-absolute top-0 start-100 translate-middle">
-                <input type="hidden" name="category_id" value="<?php echo $category['category_id']; ?>">
-                    <button type="submit" class="btn btn-link p-0 text-danger" title="Xóa danh mục">
+                <form action="delete_category.php" method="POST" class="position-absolute top-0 start-100 translate-middle" id="deleteForm-<?php echo $category['category_id']; ?>">
+                    <input type="hidden" name="category_id" value="<?php echo $category['category_id']; ?>">
+                    <button type="button" class="btn btn-link p-0 text-danger" title="Xóa danh mục" onclick="confirmDelete(<?php echo $category['category_id']; ?>)">
                         <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="#000" stroke="#000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-x">
                             <path d="M18 6 6 18"/><path d="m6 6 12 12"/>
                         </svg>
@@ -297,6 +297,16 @@ $conn->close();
         ?>
     </ul>
 </div>
+
+<script>
+    function confirmDelete(categoryId) {
+        // Hiển thị hộp thoại xác nhận
+        if (confirm("Bạn có chắc chắn muốn xóa danh mục này?")) {
+            // Nếu người dùng chọn OK, gửi form xóa
+            document.getElementById('deleteForm-' + categoryId).submit();
+        }
+    }
+</script>
 
 <div class="tab-content">
     <?php
