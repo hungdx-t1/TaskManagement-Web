@@ -1,6 +1,13 @@
 <!DOCTYPE html>
 <html lang="en">
+<?php
 
+if (session_status() === PHP_SESSION_NONE) {
+  session_start();
+}
+
+$userId = $_SESSION['user_id'] ?? null;
+?>
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -187,7 +194,7 @@ main{
                           die("Kết nối thất bại: " . $conn->connect_error);
                       }
 
-                      $sql = "SELECT DISTINCT category_name FROM categories";
+                      $sql = "SELECT DISTINCT category_name FROM categories where user_id='$userId'";
 
                       $result = $conn->query($sql);
 
@@ -239,25 +246,29 @@ main{
       </div>
     </div>
     <?php 
-// Kết nối cơ sở dữ liệu
+
+// Now, you can access $_SESSION['user_id']
+
+// Database connection code goes here...
 $servername = "localhost";
 $username = "root";
 $password = "";
 $dbname = "task_management";
 
-// Tạo kết nối
+// Create a new MySQLi connection
 $conn = new mysqli($servername, $username, $password, $dbname);
 
-// Kiểm tra kết nối
+// Check connection
 if ($conn->connect_error) {
-    die("Kết nối thất bại: " . $conn->connect_error);
+    die("Connection failed: " . $conn->connect_error);
 }
 
-// Query categories excluding predefined ones
-$query = "SELECT category_id, category_name FROM categories";
+// Your SQL query here
+$query = "SELECT category_id, category_name FROM categories WHERE '$userId' = user_id";
 
-// Sử dụng prepared statement để tránh SQL Injection
+// Prepare the query
 $stmt = $conn->prepare($query);
+
 
 if ($stmt === false) {
     die("Lỗi trong việc chuẩn bị câu truy vấn: " . $conn->error);
@@ -320,16 +331,24 @@ $conn->close();
     // Fetch tasks for each category dynamically
     foreach ($categories as $index => $category) {
         // Get tasks for current category
-        $category_name = $category['category_name'];
-        $sql = "SELECT tasks.title, tasks.task_id, tasks.description, tasks.category, tasks.priority, tasks.image, tasks.due_date
-                FROM tasks
-                JOIN categories ON tasks.category = categories.category_name
-                WHERE categories.category_name = ?";
+        $category_name = $category['category_name'];  // Ensure category_name is set properly
 
+        // Prepare the SQL query with placeholders for both user_id and category_name
+        $sql = "SELECT DISTINCT tasks.title, tasks.task_id, tasks.description, tasks.category, tasks.priority, tasks.image, tasks.due_date
+                FROM tasks 
+                JOIN categories ON tasks.category = categories.category_name
+                WHERE tasks.user_id = ? AND categories.category_name = ?";
+        
         // Use prepared statement to avoid SQL injection
         $stmt = $conn->prepare($sql);
-        $stmt->bind_param("s", $category_name);
+        
+        // Bind parameters: "i" for integer user_id and "s" for string category_name
+        $stmt->bind_param("is", $userId, $category_name);
+        
+        // Execute the statement
         $stmt->execute();
+        
+        // Get the result
         $task_result = $stmt->get_result();
 
         echo '<div class="tab-pane fade" id="tab-' . ($index + 6) . '" role="tabpanel">';
@@ -451,6 +470,31 @@ $conn->close();
     </div>
   </div>
 
+<?php
+date_default_timezone_set('Asia/Ho_Chi_Minh');
+$servername = "localhost";
+$username = "root";
+$password = "";
+$dbname = "task_management";
+$conn = new mysqli($servername, $username, $password, $dbname);
+if ($conn->connect_error) {
+  die("Kết nối thất bại: " . $conn->connect_error);
+}
+$activities = [];
+if ($userId) {
+  $stmt = $conn->prepare("SELECT action, timestamp FROM activity_logs WHERE user_id = ? ORDER BY timestamp DESC LIMIT 10");
+  $stmt->bind_param("i", $userId);
+  $stmt->execute();
+  $result = $stmt->get_result();
+
+  while ($row = $result->fetch_assoc()) {
+      $activities[] = $row;
+  }
+
+  $stmt->close();
+}
+$conn->close();
+?>
   <div class="modal fade" id="activityModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
     <div class="modal-dialog">
       <div class="modal-content">
@@ -460,36 +504,39 @@ $conn->close();
         </div>
         <div class="modal-body">
           <ul class="list-group">
-            <li class="list-group-item list-group-item-light text-dark">
-              <div class="d-flex w-100 justify-content-between align-items-center">
-                <div>Bạn vừa thêm một công việc</div>
-                <small class="text-danger">10 phút trước</small>
-              </div>
+          <?php if (!empty($activities)): ?>
+            <?php foreach ($activities as $activity): ?>
+              <?php
+              $action = htmlspecialchars($activity['action'], ENT_QUOTES, 'UTF-8');
+              $timestamp = strtotime($activity['timestamp']);
+              $current_time = time();
+              $time_diff = round(($current_time - $timestamp) / 60);
+
+              // Format thời gian hiển thị
+              if ($time_diff < 1) {
+                  $time_ago = "Vừa xong";
+              } elseif ($time_diff < 60) {
+                  $time_ago = "$time_diff phút trước";
+              } elseif ($time_diff < 1440) {
+                  $hours = floor($time_diff / 60);
+                  $time_ago = "$hours giờ trước";
+              } else {
+                  $days = floor($time_diff / 1440);
+                  $time_ago = "$days ngày trước";
+              }
+              ?>
+              <li class="list-group-item list-group-item-light text-dark">
+                <div class="d-flex w-100 justify-content-between align-items-center">
+                  <div><?php echo $action; ?></div>
+                  <small class="text-danger"><?php echo $time_ago; ?></small>
+                </div>
+              </li>
+            <?php endforeach; ?>
+          <?php else: ?>
+            <li class="list-group-item list-group-item-light text-dark text-center">
+              Không có hoạt động nào.
             </li>
-            <li class="list-group-item list-group-item-light text-dark">
-              <div class="d-flex w-100 justify-content-between align-items-center">
-                <div>Bạn vừa cập nhật công việc</div>
-                <small class="text-danger">10 phút trước</small>
-              </div>
-            </li>
-            <li class="list-group-item list-group-item-light text-dark">
-              <div class="d-flex w-100 justify-content-between align-items-center">
-                <div>Bạn vừa xóa một công việc</div>
-                <small class="text-danger">10 phút trước</small>
-              </div>
-            </li>
-            <li class="list-group-item list-group-item-light text-dark">
-              <div class="d-flex w-100 justify-content-between align-items-center">
-                <div>Bạn vừa thêm một công việc</div>
-                <small class="text-danger">10 phút trước</small>
-              </div>
-            </li>
-            <li class="list-group-item list-group-item-light text-dark">
-              <div class="d-flex w-100 justify-content-between align-items-center">
-                <div>Bạn vừa thêm một công việc</div>
-                <small class="text-danger">10 phút trước</small>
-              </div>
-            </li>
+          <?php endif; ?>
           </ul>
         </div>
         <div class="modal-footer">
