@@ -227,7 +227,7 @@ main{
 
                 <div class="mb-3">
                   <label for="dueDate" class="form-label">Ngày hết hạn</label>
-                  <input type="date" id="dueDateInput" class="form-control" name="dueDate" />
+                  <input type="datetime-local" id="dueDateInput" class="form-control" name="dueDate" />
                 </div>
 
                 <div class="mb-3">
