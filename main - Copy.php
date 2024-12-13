@@ -68,69 +68,28 @@ main{
         </button>
       </div>
       <div class="d-flex align-items-center">
-        <?php
-          // Kết nối đến database
-          $servername = "localhost";
-          $username = "root";
-          $password = "";
-          $dbname = "task_management"; // Thay thế bằng tên cơ sở dữ liệu của bạn
-
-          // Tạo kết nối
-          $conn = new mysqli($servername, $username, $password, $dbname);
-          $tasks = [];
-          // Kiểm tra kết nối
-          if ($conn->connect_error) {
-              die("Kết nối thất bại: " . $conn->connect_error);
-          }
-
-          if ($userId) {
-              // Chuẩn bị truy vấn
-              $sql = "SELECT task_id, title, due_date 
-                      FROM tasks 
-                      WHERE user_id = '$userId'
-                        AND due_date >= NOW()
-                        AND TIMESTAMPDIFF(MINUTE, NOW(), due_date) <= 180";
-              $result = $conn->query($sql);
-          } 
-
-          if ($result && $result->num_rows > 0) {
-            while ($row = $result->fetch_assoc()) {
-                $tasks[] = $row;
-            }
-          }
-
-          $conn->close();
-          ?>
-
-          <div class="dropdown d-flex align-items-center me-3">
-              <div data-bs-toggle="dropdown" aria-expanded="false">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
-                      stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-                      class="lucide lucide-bell">
-                      <path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9" />
-                      <path d="M10.3 21a1.94 1.94 0 0 0 3.4 0" />
-                  </svg>
-              </div>
-              <ul class="dropdown-menu shadow" style="width: 300px">
-                  <?php if (!empty($tasks)): ?>
-                      <?php foreach ($tasks as $task): ?>
-                          <li class="dropdown-item">
-                              <div class="text-wrap text-success">
-                                  Công việc #<?= htmlspecialchars($task['task_id']) ?> - <?= htmlspecialchars($task['title']) ?>
-                                  sắp hết hạn lúc <?= htmlspecialchars($task['due_date']) ?>.
-                              </div>
-                          </li>
-                      <?php endforeach; ?>
-                  <?php else: ?>
-                      <li class="dropdown-item">
-                          <div class="text-wrap text-muted">
-                              Không có công việc nào sắp hết hạn.
-                          </div>
-                      </li>
-                  <?php endif; ?>
-              </ul>
+        <div class="dropdown d-flex align-items-center me-3">
+          <div data-bs-toggle="dropdown" aria-expanded="false">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+              stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+              class="lucide lucide-bell">
+              <path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9" />
+              <path d="M10.3 21a1.94 1.94 0 0 0 3.4 0" />
+            </svg>
           </div>
-
+          <ul class="dropdown-menu shadow" style="width: 300px">
+            <li class="dropdown-item">
+              <div class="text-wrap text-success">
+                Công việc #12312345 sắp hết hạn.
+              </div>
+            </li>
+            <li class="dropdown-item">
+              <div class="text-wrap text-success">
+                Công việc #12312345 sắp hết hạn.
+              </div>
+            </li>
+          </ul>
+        </div>
         <div class="d-flex align-items-center dropdown">
           <div class="header-user" data-bs-toggle="dropdown" aria-expanded="false">
             <div class="header-user__avatar">
@@ -275,15 +234,6 @@ main{
                   <label for="attachment" class="form-label">File đính kèm (Nếu có)</label>
                   <input type="file" class="form-control" name="attachment" />
                 </div>
-
-                <div class="mb-3 form-floating">
-                  <select class="form-select" id="doneSelect" name="isDone">
-                    <option value="yes">Đã hoàn thành</option>
-                    <option value="no" selected>Chưa hoàn thành</option>
-                  </select>
-                  <label for="priority">Tiến độ công việc</label>
-                </div>
-                
               </div>  
               <div class="modal-footer">
                 <button type="button" class="btn btn-light" data-bs-dismiss="modal">Hủy</button>

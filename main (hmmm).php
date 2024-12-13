@@ -67,69 +67,116 @@ main{
           Thêm mới danh mục
         </button>
       </div>
-      <div class="d-flex align-items-center">
-        <?php
-          // Kết nối đến database
-          $servername = "localhost";
-          $username = "root";
-          $password = "";
-          $dbname = "task_management"; // Thay thế bằng tên cơ sở dữ liệu của bạn
 
-          // Tạo kết nối
-          $conn = new mysqli($servername, $username, $password, $dbname);
-          $tasks = [];
-          // Kiểm tra kết nối
-          if ($conn->connect_error) {
-              die("Kết nối thất bại: " . $conn->connect_error);
-          }
+<?php
+// Kết nối database và khởi tạo session
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
 
-          if ($userId) {
-              // Chuẩn bị truy vấn
-              $sql = "SELECT task_id, title, due_date 
-                      FROM tasks 
-                      WHERE user_id = '$userId'
-                        AND due_date >= NOW()
-                        AND TIMESTAMPDIFF(MINUTE, NOW(), due_date) <= 180";
-              $result = $conn->query($sql);
-          } 
+$servername = "localhost";
+$username = "root";
+$password = "";
+$dbname = "task_management";
 
-          if ($result && $result->num_rows > 0) {
-            while ($row = $result->fetch_assoc()) {
-                $tasks[] = $row;
-            }
-          }
+try {
+    $pdo = new PDO("mysql:host=$servername;dbname=$dbname;charset=utf8mb4", $username, $password);
+    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+} catch (PDOException $e) {
+    die("Database connection failed: " . $e->getMessage());
+}
 
-          $conn->close();
-          ?>
+$userId = $_SESSION['user_id'] ?? null;
+$notifications = [];
 
-          <div class="dropdown d-flex align-items-center me-3">
-              <div data-bs-toggle="dropdown" aria-expanded="false">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
-                      stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-                      class="lucide lucide-bell">
-                      <path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9" />
-                      <path d="M10.3 21a1.94 1.94 0 0 0 3.4 0" />
-                  </svg>
-              </div>
-              <ul class="dropdown-menu shadow" style="width: 300px">
-                  <?php if (!empty($tasks)): ?>
-                      <?php foreach ($tasks as $task): ?>
-                          <li class="dropdown-item">
-                              <div class="text-wrap text-success">
-                                  Công việc #<?= htmlspecialchars($task['task_id']) ?> - <?= htmlspecialchars($task['title']) ?>
-                                  sắp hết hạn lúc <?= htmlspecialchars($task['due_date']) ?>.
-                              </div>
-                          </li>
-                      <?php endforeach; ?>
-                  <?php else: ?>
-                      <li class="dropdown-item">
-                          <div class="text-wrap text-muted">
-                              Không có công việc nào sắp hết hạn.
-                          </div>
-                      </li>
-                  <?php endif; ?>
-              </ul>
+if ($userId) {
+    // Lấy công việc sắp hết hạn (còn dưới 180 phút)
+    $stmt = $pdo->prepare("SELECT action, timestamp FROM history 
+                           WHERE user_id = :userId AND timestamp > NOW() AND timestamp <= DATE_ADD(NOW(), INTERVAL 180 MINUTE)");
+    $stmt->execute(['userId' => $userId]);
+    $notifications = $stmt->fetchAll(PDO::FETCH_ASSOC);
+}
+?>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <style>
+    .dropdown-menu {
+      width: 300px;
+    }
+    .notification-item {
+      padding: 10px;
+      border-bottom: 1px solid #ddd;
+    }
+    .notification-item:last-child {
+      border-bottom: none;
+    }
+    .notification-item .text {
+      font-size: 14px;
+      color: #555;
+    }
+    .notification-item .time {
+      font-size: 12px;
+      color: #999;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="container mt-3">
+      <div class="d-flex justify-content-between align-items-center">
+        <div class="dropdown">
+          <div data-bs-toggle="dropdown" aria-expanded="false" style="cursor: pointer;">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+              stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+              class="lucide lucide-bell">
+              <path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9" />
+              <path d="M10.3 21a1.94 1.94 0 0 0 3.4 0" />
+            </svg>
           </div>
+          <ul class="dropdown-menu shadow">
+            <?php if (!empty($notifications)): ?>
+              <?php foreach ($notifications as $notification): ?>
+                <li class="notification-item">
+                  <div class="text"><?= htmlspecialchars($notification['action']) ?></div>
+                  <div class="time">Hạn chót: <?= htmlspecialchars($notification['timestamp']) ?></div>
+                </li>
+              <?php endforeach; ?>
+            <?php else: ?>
+              <li class="text-center p-2 text-muted">Không có thông báo mới</li>
+            <?php endif; ?>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </header>
+  <script>
+    // Sử dụng Notifications API
+    if (Notification.permission === 'default') {
+      Notification.requestPermission();
+    }
+
+    function sendNotification(message) {
+      if (Notification.permission === 'granted') {
+        new Notification('Thông báo', { body: message });
+      }
+    }
+
+    // Danh sách thông báo từ PHP
+    const notifications = <?php echo json_encode($notifications); ?>;
+
+    // Kiểm tra thông báo gần đến hạn
+    notifications.forEach(notification => {
+      const deadline = new Date(notification.timestamp);
+      const timeLeft = deadline - new Date();
+      if (timeLeft <= 180 * 60 * 1000) { // Nếu thời gian còn dưới 180 phút
+        sendNotification(`${notification.action} sắp hết hạn lúc ${deadline.toLocaleString()}`);
+      }
+    });
+  </script>
+</body>
+
 
         <div class="d-flex align-items-center dropdown">
           <div class="header-user" data-bs-toggle="dropdown" aria-expanded="false">
@@ -275,15 +322,6 @@ main{
                   <label for="attachment" class="form-label">File đính kèm (Nếu có)</label>
                   <input type="file" class="form-control" name="attachment" />
                 </div>
-
-                <div class="mb-3 form-floating">
-                  <select class="form-select" id="doneSelect" name="isDone">
-                    <option value="yes">Đã hoàn thành</option>
-                    <option value="no" selected>Chưa hoàn thành</option>
-                  </select>
-                  <label for="priority">Tiến độ công việc</label>
-                </div>
-                
               </div>  
               <div class="modal-footer">
                 <button type="button" class="btn btn-light" data-bs-dismiss="modal">Hủy</button>
