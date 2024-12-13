@@ -67,6 +67,7 @@ main{
           Thêm mới danh mục
         </button>
       </div>
+
       <div class="d-flex align-items-center">
         <?php
           // Kết nối đến database
@@ -177,6 +178,10 @@ main{
     </div>
   </header>
   <main class="container">
+
+    <button id="toggleButton">Chuyển Giao Diện</button>
+    <script src="script.js"></script>
+
     <div class="pb-2 d-flex justify-content-between align-items-start border-bottom">
       <div>
         <h2 class="fw-bold text-dark text-uppercase">Hôm nay</h2>
