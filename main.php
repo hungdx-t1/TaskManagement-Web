@@ -17,16 +17,13 @@ $userId = $_SESSION['user_id'] ?? null;
     .card {
       width: 100%;
       height: 400px;
-      /* Chiều cao mặc định của card */
       overflow: hidden;
       margin-bottom: 20px;
-      /* Thêm khoảng cách giữa các thẻ */
     }
 
     .card-img-top {
       width: 100%;
       height: 280px;
-      /* Chiều cao cố định cho ảnh */
     }
 
     /* Tùy chọn: Áp dụng chiều cao lớn hơn chỉ trên các màn hình lớn hơn 992px */
