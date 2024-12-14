@@ -1,3 +1,4 @@
+/* Cấu trúc Header */
 .header-wrapper {
   width: 100%;
   height: 60px;
@@ -7,6 +8,7 @@
   box-shadow: rgba(99, 99, 99, 0.2) 0px 2px 8px 0px;
 }
 
+/* Cấu trúc của người dùng */
 .header-user {
   display: flex;
   align-items: center;
@@ -25,6 +27,7 @@
   object-fit: cover;
 }
 
+/* Tab List */
 .tabs-list {
   padding: 10px 0;
   list-style: none;
@@ -34,19 +37,28 @@
 }
 
 .nav-item {
-  display: inline-block;
+  background-color: #71717a;
+  color: #fff;
 }
 
 .nav-link {
   padding: 8px 16px;
 }
-.nav-link:hover{
-  color:red;
 
+.nav-link:hover {
+  color: red;
 }
+
+/* Form đăng nhập */
 .form-signin {
   max-width: 330px;
   padding: 1rem;
+}
+
+/* Chế độ sáng/tối cho body */
+body {
+  font-family: Arial, sans-serif;
+  transition: background-color 0.3s, color 0.3s;
 }
 
 body.light-mode {
@@ -59,8 +71,26 @@ body.dark-mode {
   color: #ffffff;
 }
 
+/* Styles cho button */
 button {
   padding: 10px 20px;
   margin: 20px;
   cursor: pointer;
+}
+
+/* Styles cho nút chuyển chế độ sáng/tối */
+#toggleButton {
+  margin: 10px;
+  padding: 10px 20px;
+  cursor: pointer;
+  border: none;
+  border-radius: 5px;
+  background-color: #4CAF50;
+  color: white;
+  font-size: 16px;
+  transition: background-color 0.3s;
+}
+
+#toggleButton:hover {
+  background-color: #45a049;
 }

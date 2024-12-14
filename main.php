@@ -1,62 +1,60 @@
 <!DOCTYPE html>
 <html lang="en">
 <?php
-
-if (session_status() === PHP_SESSION_NONE) {
-  session_start();
-}
-
-$userId = $_SESSION['user_id'] ?? null;
+  if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+  }
+  $userId = $_SESSION['user_id'] ?? null;
 ?>
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Document</title>
+  <title>Công Việc Cá Nhân</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
   <link rel="stylesheet" href="./index.css" />
   <style>
-  .card {
-  width: 100%;
-  height: 400px; /* Chiều cao mặc định của card */
-  overflow: hidden;
-  margin-bottom: 20px; /* Thêm khoảng cách giữa các thẻ */
-}
+    .card {
+    width: 100%;
+    height: 400px; /* Chiều cao mặc định của card */
+    overflow: hidden;
+    margin-bottom: 20px; /* Thêm khoảng cách giữa các thẻ */
+    }
 
-.card-img-top {
-  width: 100%;
-  height: 280px; /* Chiều cao cố định cho ảnh */
-}
+    .card-img-top {
+      width: 100%;
+      height: 280px; /* Chiều cao cố định cho ảnh */
+    }
 
-/* Tùy chọn: Áp dụng chiều cao lớn hơn chỉ trên các màn hình lớn hơn 992px */
-@media (min-width: 992px) { /* Áp dụng cho màn hình lớn hơn 992px */
-  .card {
-    height: calc(400px + 2cm); /* Tăng chiều cao thẻ thêm 2cm */
-  }
-}
+    /* Tùy chọn: Áp dụng chiều cao lớn hơn chỉ trên các màn hình lớn hơn 992px */
+    @media (min-width: 992px) { /* Áp dụng cho màn hình lớn hơn 992px */
+      .card {
+        height: calc(400px + 2cm); /* Tăng chiều cao thẻ thêm 2cm */
+      }
+    }
 
-main{
-  width: 100%;
-  min-height: 100vh;
-  background-image: url('./assets/image/maxresdefault.jpg');
-  background-position: center;
-  background-size: cover;
-  background-repeat: none;
-}
+    /*
+    main{
+      width: 100%;
+      min-height: 100vh;
+      background-image: url('./assets/image/maxresdefault.jpg');
+      background-position: center;
+      background-size: cover;
+      background-repeat: none;
+    }
+    */
 
-.nav-item{
-  background-color: #71717a;
-  color: #fff;
-}
-</style>
-
+    .nav-item{
+      background-color: #71717a;
+      color: #fff;
+    }
+  </style>
 </head>
 
 <body>
   <header>
     <div class="container mb-3 header-wrapper">
       <div class="d-flex align-items-center">
-        <button class="gap-2 d-flex align-items-center btn btn-light" type="button" data-bs-toggle="modal"
-          data-bs-target="#categoryModal">
+        <button class="gap-2 d-flex align-items-center btn btn-light" type="button" data-bs-toggle="modal" data-bs-target="#categoryModal">
           <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
             stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
             class="lucide lucide-circle-plus">
@@ -101,36 +99,36 @@ main{
           }
 
           $conn->close();
-          ?>
+        ?>
 
-          <div class="dropdown d-flex align-items-center me-3">
-              <div data-bs-toggle="dropdown" aria-expanded="false">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
-                      stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-                      class="lucide lucide-bell">
-                      <path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9" />
-                      <path d="M10.3 21a1.94 1.94 0 0 0 3.4 0" />
-                  </svg>
-              </div>
-              <ul class="dropdown-menu shadow" style="width: 300px">
-                  <?php if (!empty($tasks)): ?>
-                      <?php foreach ($tasks as $task): ?>
-                          <li class="dropdown-item">
-                              <div class="text-wrap text-success">
-                                  Công việc #<?= htmlspecialchars($task['task_id']) ?> - <?= htmlspecialchars($task['title']) ?>
-                                  sắp hết hạn lúc <?= htmlspecialchars($task['due_date']) ?>.
-                              </div>
-                          </li>
-                      <?php endforeach; ?>
-                  <?php else: ?>
-                      <li class="dropdown-item">
-                          <div class="text-wrap text-muted">
-                              Không có công việc nào sắp hết hạn.
-                          </div>
-                      </li>
-                  <?php endif; ?>
-              </ul>
-          </div>
+        <div class="dropdown d-flex align-items-center me-3">
+            <div data-bs-toggle="dropdown" aria-expanded="false">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                    class="lucide lucide-bell">
+                    <path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9" />
+                    <path d="M10.3 21a1.94 1.94 0 0 0 3.4 0" />
+                </svg>
+            </div>
+            <ul class="dropdown-menu shadow" style="width: 300px">
+                <?php if (!empty($tasks)): ?>
+                    <?php foreach ($tasks as $task): ?>
+                        <li class="dropdown-item">
+                            <div class="text-wrap text-success">
+                                Công việc #<?= htmlspecialchars($task['task_id']) ?> - <?= htmlspecialchars($task['title']) ?>
+                                sắp hết hạn lúc <?= htmlspecialchars($task['due_date']) ?>.
+                            </div>
+                        </li>
+                    <?php endforeach; ?>
+                <?php else: ?>
+                    <li class="dropdown-item">
+                        <div class="text-wrap text-muted">
+                            Không có công việc nào sắp hết hạn.
+                        </div>
+                    </li>
+                <?php endif; ?>
+            </ul>
+        </div>
 
         <div class="d-flex align-items-center dropdown">
           <div class="header-user" data-bs-toggle="dropdown" aria-expanded="false">
@@ -178,17 +176,13 @@ main{
     </div>
   </header>
   <main class="container">
-
-    <button id="toggleButton">Chuyển Giao Diện</button>
-    <script src="script.js"></script>
-
     <div class="pb-2 d-flex justify-content-between align-items-start border-bottom">
-      <div>
-        <h2 class="fw-bold text-dark text-uppercase">Hôm nay</h2>
-        <div class="text-secondary">Thứ sáu, 28 tháng 9</div>
-        <img style="width:50px" src="./assets/image/bear-hand-drawn-animal-toy-svgrepo-com.svg">
-        <img style="width:50px" src="./assets/image/space-ship-hand-drawn-transport-svgrepo-com.svg">
-        <img style="width:50px" src="./assets/image/rattle-hand-drawn-baby-tool-svgrepo-com.svg">
+      <div id="dateContainer">
+          <h2 class="fw-bold text-dark text-uppercase" id="todayTitle">Hôm nay</h2>
+          <div class="text-secondary" id="currentDate">Loading...</div> <!-- Hiển thị ngày giờ ở đây -->
+          <img style="width:50px" src="./assets/image/bear-hand-drawn-animal-toy-svgrepo-com.svg">
+          <img style="width:50px" src="./assets/image/space-ship-hand-drawn-transport-svgrepo-com.svg">
+          <img style="width:50px" src="./assets/image/rattle-hand-drawn-baby-tool-svgrepo-com.svg">
       </div>
       <div>
         <button class="gap-2 d-flex align-items-center btn btn-dark" id="btn-add" type="button" data-bs-toggle="modal"
@@ -294,48 +288,37 @@ main{
                 <button type="button" class="btn btn-light" data-bs-dismiss="modal">Hủy</button>
                 <button type="submit" id="btn-submit" class="btn btn-dark">Thêm mới công việc</button>
               </div>
-</form>
+      </form>
             </div>
           </div>
         </div>
       </div>
     </div>
     <?php 
+      $servername = "localhost";
+      $username = "root";
+      $password = "";
+      $dbname = "task_management";
+      $conn = new mysqli($servername, $username, $password, $dbname);
 
-// Now, you can access $_SESSION['user_id']
+      if ($conn->connect_error) {
+          die("Connection failed: " . $conn->connect_error);
+      }
 
-// Database connection code goes here...
-$servername = "localhost";
-$username = "root";
-$password = "";
-$dbname = "task_management";
+      $query = "SELECT category_id, category_name FROM categories WHERE '$userId' = user_id";
+      $stmt = $conn->prepare($query);
 
-// Create a new MySQLi connection
-$conn = new mysqli($servername, $username, $password, $dbname);
+      if ($stmt === false) {
+          die("Lỗi trong việc chuẩn bị câu truy vấn: " . $conn->error);
+      }
 
-// Check connection
-if ($conn->connect_error) {
-    die("Connection failed: " . $conn->connect_error);
-}
+      $stmt->execute();
+      $result = $stmt->get_result();
+      $categories = $result->fetch_all(MYSQLI_ASSOC);
 
-// Your SQL query here
-$query = "SELECT category_id, category_name FROM categories WHERE '$userId' = user_id";
-
-// Prepare the query
-$stmt = $conn->prepare($query);
-
-
-if ($stmt === false) {
-    die("Lỗi trong việc chuẩn bị câu truy vấn: " . $conn->error);
-}
-
-$stmt->execute();
-$result = $stmt->get_result();
-$categories = $result->fetch_all(MYSQLI_ASSOC);
-
-$stmt->close();
-$conn->close();
-?>
+      $stmt->close();
+      $conn->close();
+    ?>
 
 <div class="my-3 tab-header">
     <ul class="nav-pills tabs-list" id="myTab" role="tablist">
@@ -364,7 +347,7 @@ $conn->close();
     </ul>
 </div>
 
-<script>
+  <script>
     function confirmDelete(categoryId) {
         // Hiển thị hộp thoại xác nhận
         if (confirm("Bạn có chắc chắn muốn xóa danh mục này?")) {
@@ -372,9 +355,9 @@ $conn->close();
             document.getElementById('deleteForm-' + categoryId).submit();
         }
     }
-</script>
+  </script>
 
-<div class="tab-content">
+  <div class="tab-content">
     <?php
     // Reconnect to fetch tasks dynamically for each category tab
     $conn = new mysqli($servername, $username, $password, $dbname);
@@ -468,7 +451,7 @@ $conn->close();
     // Close connection
     $conn->close();
     ?>
-</div>
+  </div>
 
 <!-- Modal để xem mô tả đầy đủ -->
 <div class="modal fade" id="taskDescriptionModal" tabindex="-1" aria-labelledby="taskModalLabel" aria-hidden="true">
@@ -650,6 +633,6 @@ $conn->close();
     })
     
   </script>
+  <script src="script.js"></script>
 </body>
-
 </html>
