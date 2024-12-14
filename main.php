@@ -508,31 +508,31 @@
     </div>
   </div>
 
-<?php
-date_default_timezone_set('Asia/Ho_Chi_Minh');
-$servername = "localhost";
-$username = "root";
-$password = "";
-$dbname = "task_management";
-$conn = new mysqli($servername, $username, $password, $dbname);
-if ($conn->connect_error) {
-  die("Kết nối thất bại: " . $conn->connect_error);
-}
-$activities = [];
-if ($userId) {
-  $stmt = $conn->prepare("SELECT action, timestamp FROM activity_logs WHERE user_id = ? ORDER BY timestamp DESC LIMIT 10");
-  $stmt->bind_param("i", $userId);
-  $stmt->execute();
-  $result = $stmt->get_result();
+  <?php
+    date_default_timezone_set('Asia/Ho_Chi_Minh');
+    $servername = "localhost";
+    $username = "root";
+    $password = "";
+    $dbname = "task_management";
+    $conn = new mysqli($servername, $username, $password, $dbname);
+    if ($conn->connect_error) {
+      die("Kết nối thất bại: " . $conn->connect_error);
+    }
+    $activities = [];
+    if ($userId) {
+      $stmt = $conn->prepare("SELECT action, timestamp FROM activity_logs WHERE user_id = ? ORDER BY timestamp DESC LIMIT 10");
+      $stmt->bind_param("i", $userId);
+      $stmt->execute();
+      $result = $stmt->get_result();
 
-  while ($row = $result->fetch_assoc()) {
-      $activities[] = $row;
-  }
+      while ($row = $result->fetch_assoc()) {
+          $activities[] = $row;
+      }
 
-  $stmt->close();
-}
-$conn->close();
-?>
+      $stmt->close();
+    }
+    $conn->close();
+  ?>
   <div class="modal fade" id="activityModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
     <div class="modal-dialog">
       <div class="modal-content">
