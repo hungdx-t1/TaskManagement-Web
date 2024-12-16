@@ -27,26 +27,27 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $description = $_POST['description'];
     $priority = $_POST['priority'];
     $dueDate = $_POST['dueDate'];
-    $category= $_POST['category'];
+    $category = $_POST['category'];
     $id = $_POST['taskId'];
-    
+    $isDone = ($_POST['isDone'] === 'yes') ? 1 : 0; // Chuyển đổi 'yes' thành 1 và 'no' thành 0
+
     $userId = $_SESSION['user_id'] ?? null;
 
-    if($id){
+    if ($id) {
         if (isset($_FILES['attachment']) && $_FILES['attachment']['error'] === UPLOAD_ERR_OK) {
             // Đọc file ảnh dưới dạng nhị phân
             $image = file_get_contents($_FILES['attachment']['tmp_name']);
-            $stmt = $conn->prepare("UPDATE tasks SET user_id = ?, title = ?, description = ?, priority = ?, image = ?, due_date = ?, category = ? WHERE task_id = ?");
-            $stmt->bind_param("isssssss", $userId, $title, $description, $priority, $image, $dueDate, $category, $id);
-        }else{
-            $stmt = $conn->prepare("UPDATE tasks SET user_id = ?, title = ?, description = ?, priority = ?, due_date = ?, category = ? WHERE task_id = ?");
-            $stmt->bind_param("issssss", $userId, $title, $description, $priority, $dueDate, $category, $id);
+            $stmt = $conn->prepare("UPDATE tasks SET user_id = ?, title = ?, description = ?, priority = ?, image = ?, due_date = ?, category = ?, isDone = ? WHERE task_id = ?");
+            $stmt->bind_param("issssssii", $userId, $title, $description, $priority, $image, $dueDate, $category, $isDone, $id);
+        } else {
+            $stmt = $conn->prepare("UPDATE tasks SET user_id = ?, title = ?, description = ?, priority = ?, due_date = ?, category = ?, isDone = ? WHERE task_id = ?");
+            $stmt->bind_param("isssssii", $userId, $title, $description, $priority, $dueDate, $category, $isDone, $id);
         }
 
         if ($stmt->execute()) {
 
             // Lưu log
-            $action = "Sửa công việc: ".$title;
+            $action = "Sửa công việc: " . $title;
             $log_sql = "INSERT INTO activity_logs(user_id, action) VALUES (?, ?)";
             $log_stmt = $conn->prepare($log_sql);
             $log_stmt->bind_param('is', $userId, $action); // 'i' là integer, 's' là string
@@ -64,7 +65,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 </script>";
             exit();
         }
-    }else{
+    } else {
         // Khởi tạo biến ảnh
         $image = null;
         if (isset($_FILES['attachment']) && $_FILES['attachment']['error'] === UPLOAD_ERR_OK) {
@@ -73,12 +74,13 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         }
 
         // Thêm dữ liệu vào cơ sở dữ liệu
-        $stmt = $conn->prepare("INSERT INTO tasks (user_id, title, description, priority, due_date, image, category) VALUES (?, ?, ?, ?, ?, ?, ?)");
-        $stmt->bind_param("issssss", $userId, $title, $description, $priority, $dueDate, $image, $category);
+        $stmt = $conn->prepare("INSERT INTO tasks (user_id, title, description, priority, due_date, image, category, isDone) VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
+        $stmt->bind_param("issssssi", $userId, $title, $description, $priority, $dueDate, $image, $category, $isDone);
+
 
         if ($stmt->execute()) {
 
-            $action = "Thêm công việc: ".$title;
+            $action = "Thêm công việc: " . $title;
             $log_sql = "INSERT INTO activity_logs(user_id, action) VALUES (?, ?)";
             $log_stmt = $conn->prepare($log_sql);
             $log_stmt->bind_param('is', $userId, $action); // 'i' là integer, 's' là string

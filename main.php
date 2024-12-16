@@ -46,14 +46,14 @@ $userId = $_SESSION['user_id'] ?? null;
       background-repeat: none;
     }
     */
-    
-    body{
-        width: 100%;
-        min-height: 100vh;
-        background-image: url('./assets/image/Untitled-1.png');
-        background-position: center;
-        background-size: cover;
-        background-repeat: none;
+
+    body {
+      width: 100%;
+      min-height: 100vh;
+      background-image: url('./assets/image/Untitled-1.png');
+      background-position: center;
+      background-size: cover;
+      background-repeat: none;
     }
 
     .nav-item {
@@ -62,24 +62,28 @@ $userId = $_SESSION['user_id'] ?? null;
     }
 
     #todayTitle {
-  color: white !important; /* Màu chữ trắng */
-  text-shadow: 
-    -2px -2px 0 black, /* Bóng viền trên bên trái */
-     2px -2px 0 black, /* Bóng viền trên bên phải */
-    -2px  2px 0 black, /* Bóng viền dưới bên trái */
-     2px  2px 0 black; /* Bóng viền dưới bên phải */
-}
+      color: white !important;
+      /* Màu chữ trắng */
+      text-shadow:
+        -2px -2px 0 black,
+        /* Bóng viền trên bên trái */
+        2px -2px 0 black,
+        /* Bóng viền trên bên phải */
+        -2px 2px 0 black,
+        /* Bóng viền dưới bên trái */
+        2px 2px 0 black;
+      /* Bóng viền dưới bên phải */
+    }
 
-#currentDate {
-  color: white !important; /* Màu chữ trắng */
-  text-shadow: 
-    -2px -2px 0 black,
-     2px -2px 0 black,
-    -2px  2px 0 black,
-     2px  2px 0 black;
-}
-
-
+    #currentDate {
+      color: white !important;
+      /* Màu chữ trắng */
+      text-shadow:
+        -2px -2px 0 black,
+        2px -2px 0 black,
+        -2px 2px 0 black,
+        2px 2px 0 black;
+    }
   </style>
 </head>
 
@@ -122,7 +126,8 @@ $userId = $_SESSION['user_id'] ?? null;
                       FROM tasks 
                       WHERE user_id = '$userId'
                         AND due_date >= NOW()
-                        AND TIMESTAMPDIFF(MINUTE, NOW(), due_date) <= 180";
+                        AND TIMESTAMPDIFF(MINUTE, NOW(), due_date) <= 180
+                        AND isDone = 0";
           $result = $conn->query($sql);
         }
 
@@ -315,7 +320,7 @@ $userId = $_SESSION['user_id'] ?? null;
                       <option value="yes">Đã hoàn thành</option>
                       <option value="no" selected>Chưa hoàn thành</option>
                     </select>
-                    <label for="priority">Tiến độ công việc</label>
+                    <label for="doneSelect">Tiến độ công việc</label>
                   </div>
 
                 </div>
@@ -412,7 +417,7 @@ $userId = $_SESSION['user_id'] ?? null;
         $category_name = $category['category_name'];  // Ensure category_name is set properly
       
         // Prepare the SQL query with placeholders for both user_id and category_name
-        $sql = "SELECT DISTINCT tasks.title, tasks.task_id, tasks.description, tasks.category, tasks.priority, tasks.image, tasks.due_date
+        $sql = "SELECT DISTINCT tasks.title, tasks.task_id, tasks.description, tasks.category, tasks.priority, tasks.image, tasks.due_date, tasks.isDone
                 FROM tasks 
                 JOIN categories ON tasks.category = categories.category_name
                 WHERE tasks.user_id = ? AND categories.category_name = ?";
@@ -441,8 +446,9 @@ $userId = $_SESSION['user_id'] ?? null;
           $maxLength = 0;
           $description = $row['description'];
           $shortDescription = (strlen($description) > $maxLength) ? substr($description, 0, $maxLength) . '...' : $description;
-          $fullDescription = $description; // Mô tả đầy đ
-      
+          $fullDescription = $description; // Mô tả đầy đủ
+          $taskStatus = $row['isDone'] ? '<span class="badge bg-success">Đã hoàn thành</span>' : '<span class="badge bg-secondary">Chưa hoàn thành</span>';
+
           echo '<div class="col-12 col-md-3">
                     <div class="card">
                         <img src="' . $imageSrc . '" class="card-img-top" alt="Card image" />
@@ -450,6 +456,7 @@ $userId = $_SESSION['user_id'] ?? null;
                             <h5 class="card-title">' . htmlspecialchars($row['title']) . '</h5>
                             <p class="card-text">' . htmlspecialchars($shortDescription) . '</p>
                             <p class="card-text" style="color: green;">' . htmlspecialchars($row['due_date']) . '</p>
+                            <p class="card-text">' . $taskStatus . '</p> <!-- Hiển thị trạng thái -->
                             <div class="d-flex gap-3">
                               <button class="text-white btn btn-warning btnTaskInfo" type="button" data-bs-toggle="modal" data-bs-target="#taskModal" data-task="' . htmlspecialchars(json_encode($row), ENT_QUOTES, 'UTF-8') . '">
                                   <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-square-pen">
@@ -472,7 +479,13 @@ $userId = $_SESSION['user_id'] ?? null;
                               </form>
 
                               <!-- Third button (Example: Edit button) -->
-                              <button class="btn btn-info btnTaskDescription" type="button" data-bs-toggle="modal" data-bs-target="#taskDescriptionModal" data-title="' . $row['title'] . '" data-date="' . $row['due_date'] . '" data-description="' . htmlspecialchars($description) . '">
+                              <button class="btn btn-info btnTaskDescription" type="button" 
+                                    data-bs-toggle="modal" 
+                                    data-bs-target="#taskDescriptionModal" 
+                                    data-title="' . htmlspecialchars($row['title']) . '" 
+                                    data-date="' . htmlspecialchars($row['due_date']) . '" 
+                                    data-description="' . htmlspecialchars($description) . '" 
+                                    data-isdone="' . ($row['isDone'] ? '1' : '0') . '">
                                   <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-eye">
                                       <path d="M2.5 12s3.5-7 9.5-7 9.5 7 9.5 7-3.5 7-9.5 7-9.5-7-9.5-7z" />
                                       <circle cx="12" cy="12" r="3" />
@@ -513,6 +526,10 @@ $userId = $_SESSION['user_id'] ?? null;
               <div class="mb-3">
                 Ngày hết han:
                 <span id="taskDueDate"></span>
+              </div>
+              <div class="mb-3">
+                Trạng thái:
+                <span id="taskIsDone" class="badge"></span>
               </div>
             </div>
             <div class="modal-footer">
@@ -667,6 +684,25 @@ $userId = $_SESSION['user_id'] ?? null;
         taskDueDate.innerText = dueDate
       });
     });
+
+    document.addEventListener('DOMContentLoaded', function () {
+      const taskDescriptionButtons = document.querySelectorAll('.btnTaskDescription');
+      taskDescriptionButtons.forEach(button => {
+        button.addEventListener('click', function () {
+          console.log("isDone:", this.getAttribute('data-isdone')); // Kiểm tra giá trị data-isdone
+          document.getElementById('taskTitle').innerText = this.getAttribute('data-title');
+          document.getElementById('taskDescription').innerText = this.getAttribute('data-description');
+          document.getElementById('taskDueDate').innerText = this.getAttribute('data-date');
+
+          // Xử lý trạng thái công việc
+          const isDone = this.getAttribute('data-isdone') === '1';
+          const taskIsDoneElement = document.getElementById('taskIsDone');
+          taskIsDoneElement.innerText = isDone ? 'Đã hoàn thành' : 'Chưa hoàn thành';
+          taskIsDoneElement.className = isDone ? 'badge bg-success' : 'badge bg-secondary';
+        });
+      });
+    });
+
 
     btnAdd.addEventListener("click", () => {
       btnSubmit.innerText = "Thêm mới công việc";
